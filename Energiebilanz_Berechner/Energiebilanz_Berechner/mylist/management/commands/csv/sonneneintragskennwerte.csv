@@ -1,0 +1,18 @@
+﻿typ,kennwert_key,beschreibung,bauart,wohng_A,wohng_B,wohng_C,nw_A,nw_B,nw_C
+S1,ohne_leicht,"ohne Nachtlüftung, Bauart leicht",leicht,0.071,0.056,0.041,0.013,0.007,0
+S1,ohne_mittel,"ohne Nachtlüftung, Bauart mittel",mittel,0.08,0.067,0.054,0.02,0.013,0.006
+S1,ohne_schwer,"ohne Nachtlüftung, Bauart schwer",schwer,0.087,0.074,0.061,0.025,0.018,0.011
+S1,erhoehte_leicht,"erhöhte Nachtlüftung ≥ 2 h⁻¹, Bauart leicht",leicht,0.098,0.088,0.078,0.071,0.06,0.048
+S1,erhoehte_mittel,"erhöhte Nachtlüftung ≥ 2 h⁻¹, Bauart mittel",mittel,0.114,0.103,0.092,0.089,0.081,0.072
+S1,erhoehte_schwer,"erhöhte Nachtlüftung ≥ 2 h⁻¹, Bauart schwer",schwer,0.125,0.113,0.101,0.101,0.092,0.083
+S1,hohe_leicht,"hohe Nachtlüftung ≥ 5 h⁻¹, Bauart leicht",leicht,0.128,0.117,0.105,0.09,0.082,0.074
+S1,hohe_mittel,"hohe Nachtlüftung ≥ 5 h⁻¹, Bauart mittel",mittel,0.16,0.152,0.143,0.135,0.124,0.113
+S1,hohe_schwer,"hohe Nachtlüftung ≥ 5 h⁻¹, Bauart schwer",schwer,0.181,0.171,0.16,0.17,0.158,0.145
+S2,a,S2: Grundflächenbezogener Fensterflächenanteil a,,0.06,0.06,0.06,0.03,0.03,0.03
+S2,b,S2: Grundflächenbezogener Fensterflächenanteil b,,0.231,0.231,0.231,0.115,0.115,0.115
+S3,sonnenschutzglas,"S3: Sonnenschutzglas g ≤ 0,40",,0.03,0.03,0.03,0.03,0.03,0.03
+S4,fensterneigung,S4: Fensterneigung (0° ≤ Neigung ≤ 60°),,-0.035,-0.035,-0.035,-0.035,-0.035,-0.035
+S5,orientierung,"S5: Orientierung Nord, Nordost, Nordwest",,0.1,0.1,0.1,0.1,0.1,0.1
+S6,leicht,"S6: passive Kühlung, Bauart leicht",leicht,0.02,0.02,0.02,0.02,0.02,0.02
+S6,mittel,"S6: passive Kühlung, Bauart mittel",mittel,0.04,0.04,0.04,0.04,0.04,0.04
+S6,schwer,"S6: passive Kühlung, Bauart schwer",schwer,0.06,0.06,0.06,0.06,0.06,0.06

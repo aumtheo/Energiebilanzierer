@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>3D Grundriss mit Babylon.js</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      background-color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    #ui {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 10px;
+      border-radius: 8px;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    #ui button, #ui input {
+      margin: 5px;
+      padding: 6px 12px;
+      border: none;
+      background-color: #1976d2;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #ui button:hover, #ui input:hover {
+      background-color: #0d47a1;
+    }
+
+    #ui button.inactive {
+      background-color: #aaa;
+    }
+    .nav-buttons {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 1000;
+    }
+    .nav-buttons .btn-back,
+    .nav-buttons .btn-next {
+    padding: 12px 30px;
+    border-radius: 25px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .nav-buttons .btn-back { background: #df9e56; }
+    .nav-buttons .btn-next { background: #5c6c3d; }
+    .nav-buttons .btn-next:hover { background: #4e5b34; }
+  </style>
+</head>
+<body>
+
+<div id="ui">
+  <input type="file" id="fileInput" accept=".json" />
+</div>
+<canvas id="renderCanvas"></canvas>
+
+  <div class="nav-buttons">
+    <a href="{% url 'startseite' %}">
+      <button type="button" class="btn btn-back">← Startseite</button>
+    </a>
+    <a href="{% url 'wandaufbau' %}">
+      <button type="button" class="btn btn-next">Weiter →</button>
+    </a>
+  </div>
+
+<script src="https://cdn.babylonjs.com/babylon.js"></script>
+
+<script>
+  const canvas = document.getElementById("renderCanvas");
+  const engine = new BABYLON.Engine(canvas, true);
+  const scene = new BABYLON.Scene(engine);
+  scene.clearColor = new BABYLON.Color3(1, 1, 1);
+
+  // Kamera & Licht
+  const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2.5, Math.PI / 3, 50, BABYLON.Vector3.Zero(), scene);
+  camera.attachControl(canvas, true);
+  // const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+  // light.intensity = 0.9;
+
+  let jsonData = {};  // Platzhalter für die geladenen JSON-Daten
+  let geschossGruppen = {};  // Platzhalter für die Etagen-Gruppen
+
+
+  // Sonnenlicht mit Schatten
+  const directionalLight = new BABYLON.DirectionalLight("dirLight", new BABYLON.Vector3(-1, -2, -1), scene);
+  directionalLight.position = new BABYLON.Vector3(20, 40, 20);
+  directionalLight.intensity = 1.0;
+
+  // Schatten aktivieren
+  const shadowGenerator = new BABYLON.ShadowGenerator(2048, directionalLight);
+  shadowGenerator.useBlurExponentialShadowMap = true;
+  shadowGenerator.blurKernel = 16;
+
+  // Hilfsfunktionen
+  function berechneSkalierung(room) {
+    return room.customProps.breite > 0 ? room.width / room.customProps.breite : 1;
+  }
+
+  // Grautöne-Funktion
+  function getGrayColor(value) {
+    const grayValue = Math.max(0, Math.min(1, value)); // Stell sicher, dass der Wert zwischen 0 und 1 liegt
+    return new BABYLON.Color3(grayValue, grayValue, grayValue);
+  }
+
+  const geschossHoehe = 2.2;
+  let aktuelleHoehe = 0;
+
+  // Bodenplatte mit radialem Farbverlauf
+const groundSize = 100;
+const ground = BABYLON.MeshBuilder.CreateGround("bodenplatte", {
+  width: groundSize,
+  height: groundSize
+}, scene);
+ground.position.y = 0.01; // leicht unter den Räumen
+ground.receiveShadows = true;
+
+
+// Dynamische Textur mit radialem Grauverlauf
+const gradientSize = 512;
+const texture = new BABYLON.DynamicTexture("gradientTex", { width: gradientSize, height: gradientSize }, scene, false);
+const ctx = texture.getContext();
+
+const gradient = ctx.createRadialGradient(
+  gradientSize / 2, gradientSize / 2, gradientSize * 0.1,
+  gradientSize / 2, gradientSize / 2, gradientSize * 0.5
+);
+gradient.addColorStop(0, "rgba(150,150,150,0.3)");  // Zentrum: leicht grau
+gradient.addColorStop(1, "rgba(255,255,255,0)");    // Rand: ganz transparent
+
+ctx.fillStyle = gradient;
+ctx.fillRect(0, 0, gradientSize, gradientSize);
+texture.update();
+
+const mat = new BABYLON.StandardMaterial("bodenMat", scene);
+mat.diffuseTexture = texture;
+mat.opacityTexture = texture;
+mat.backFaceCulling = false;
+mat.disableLighting = true;
+ground.material = mat;
+
+
+  // Funktion, um das JSON zu verarbeiten und die Räume zu erstellen
+  function erstelle3DFloorPlan(data) {
+    // Lösche alle alten Meshes und Gruppen vollständig
+
+     // Lösche alle alten Meshes außer Bodenplatte
+  scene.meshes.forEach(m => {
+    if (m.name !== "bodenplatte") {
+      m.dispose();
+    }
+  });
+
+  // Lösche TransformNodes außer der Bodenplatte
+  scene.transformNodes.forEach(node => {
+    if (node.name !== "bodenplatte") {
+      node.dispose();
+    }
+  });
+
+  // Optional: Nur Texturen löschen, die nicht zur Bodenplatte gehören
+  scene.textures.forEach(tex => {
+    if (tex.name !== "gradientTex") {
+      tex.dispose();
+    }
+  });
+
+    geschossGruppen = {};  // Lösche die alte Struktur
+    aktuelleHoehe = 0;  // Setze die Höhe zurück
+
+    const gruppen = {};
+    Object.entries(data).forEach(([geschossName, raeume]) => {
+      const gruppe = new BABYLON.TransformNode(`gruppe_${geschossName}`, scene);
+
+      raeume.forEach(room => {
+        const scale = berechneSkalierung(room);
+        const breite = room.width / scale;
+        const tiefe = room.height / scale;
+        const hoehe = geschossHoehe;
+
+        const box = BABYLON.MeshBuilder.CreateBox("raum", {
+          width: breite,
+          height: hoehe,
+          depth: tiefe
+        }, scene);
+        box.position.x = room.left / scale + breite / 2;
+        box.position.z = -(room.top / scale + tiefe / 2);
+        box.position.y = aktuelleHoehe + hoehe / 2;
+        box.parent = gruppe;
+
+        const grayColor = getGrayColor(0.5); // Grauton für alle Räume (mit Anpassung)
+        const mat = new BABYLON.StandardMaterial("mat", scene);
+        mat.diffuseColor = grayColor;
+        mat.alpha = 0.7;
+        box.material = mat;
+
+        const dynTex = new BABYLON.DynamicTexture("dynTex", 512, scene, true);
+        dynTex.drawText(room.text, null, 256, "bold 60px Arial", "black", "transparent", true);
+
+        const textMat = new BABYLON.StandardMaterial("textMat", scene);
+        textMat.diffuseTexture = dynTex;
+        textMat.emissiveColor = new BABYLON.Color3(0, 0, 0);
+        textMat.backFaceCulling = false;
+        textMat.diffuseTexture.hasAlpha = true;
+
+        const textPlane = BABYLON.MeshBuilder.CreatePlane("textPlane", {
+          width: breite * 0.9,
+          height: tiefe * 0.9
+        }, scene);
+        textPlane.position = new BABYLON.Vector3(box.position.x, box.position.y + 0.01, box.position.z);
+        textPlane.rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
+        textPlane.material = textMat;
+        textPlane.parent = gruppe;
+      });
+
+      gruppen[geschossName] = gruppe;
+      aktuelleHoehe += geschossHoehe;
+    });
+
+    return gruppen;
+  }
+
+  // UI Buttons erzeugen
+  function updateUI(gruppen) {
+    const ui = document.getElementById("ui");
+
+    // Entferne vorherige Buttons
+    const buttons = ui.querySelectorAll('button');
+    buttons.forEach(button => button.remove());
+
+    Object.keys(gruppen).forEach(name => {
+      const btn = document.createElement("button");
+      btn.textContent = `☑ ${name}`;
+      btn.dataset.name = name;
+      btn.dataset.visible = "true";
+      btn.onclick = () => {
+        const gruppe = gruppen[name];
+        const visible = btn.dataset.visible === "true";
+        gruppe.setEnabled(!visible);
+        btn.dataset.visible = (!visible).toString();
+        btn.classList.toggle("inactive", visible);
+        btn.textContent = visible ? `☐ ${name}` : `☑ ${name}`;
+      };
+      ui.appendChild(btn);
+    });
+
+    // Button „Alle zeigen“
+    const allBtn = document.createElement("button");
+    allBtn.textContent = "Alle zeigen";
+    allBtn.onclick = () => {
+      Object.entries(gruppen).forEach(([name, gruppe]) => {
+        gruppe.setEnabled(true);
+        const btn = [...ui.children].find(b => b.dataset.name === name);
+        if (btn) {
+          btn.dataset.visible = "true";
+          btn.textContent = `☑ ${name}`;
+          btn.classList.remove("inactive");
+        }
+      });
+    };
+    ui.appendChild(allBtn);
+  }
+
+  // Datei hochladen
+  document.getElementById("fileInput").addEventListener("change", function(event) {
+    const file = event.target.files[0];
+    if (file && file.type === "application/json") {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          jsonData = JSON.parse(e.target.result);
+          // Bodenplan neu erstellen
+          const gruppen = erstelle3DFloorPlan(jsonData);
+          updateUI(gruppen);
+        } catch (error) {
+          alert("Fehler beim Verarbeiten der JSON-Datei.");
+        }
+      };
+      reader.readAsText(file);
+    } else {
+      alert("Bitte eine gültige JSON-Datei auswählen.");
+    }
+  });
+
+  engine.runRenderLoop(() => scene.render());
+  window.addEventListener("resize", () => engine.resize());
+</script>
+
+</body>
+</html>
