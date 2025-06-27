@@ -1,62 +1,106 @@
 {% extends "base.html" %}
+
 {% block content %}
-  <h1>Ergebnis</h1>
+  <h1>Ergebnis der Energiebilanzierung</h1>
   
   <div class="card mb-4">
-    <div class="card-header">
-      <h2>Gebäude</h2>
+    <div class="card-header bg-primary text-white">
+      <h2 class="mb-0">Gebäudedaten</h2>
     </div>
     <div class="card-body">
-      <p><strong>Name:</strong> {{ gebaeude.name }}</p>
-      <p><strong>Länge (Nord/Süd):</strong> {{ gebaeude.laenge_ns }} m</p>
-      <p><strong>Breite (Ost/West):</strong> {{ gebaeude.breite_ow }} m</p>
-      <p><strong>Geschosshöhe:</strong> {{ gebaeude.geschosshoehe }} m</p>
-      <p><strong>Geschosse:</strong> {{ gebaeude.geschosse }}</p>
+      <div class="row">
+        <div class="col-md-6">
+          <p><strong>Name:</strong> {{ gebaeude.name }}</p>
+          <p><strong>Länge (Nord/Süd):</strong> {{ gebaeude.laenge_ns }} m</p>
+          <p><strong>Breite (Ost/West):</strong> {{ gebaeude.breite_ow }} m</p>
+        </div>
+        <div class="col-md-6">
+          <p><strong>Geschosshöhe:</strong> {{ gebaeude.geschosshoehe }} m</p>
+          <p><strong>Geschosse:</strong> {{ gebaeude.geschosse }}</p>
+          <p><strong>Gesamthöhe:</strong> {{ bauteil.hoehe }} m</p>
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="card mb-4">
-    <div class="card-header">
-      <h2>Bauteil</h2>
+    <div class="card-header bg-success text-white">
+      <h2 class="mb-0">Flächen und Volumen</h2>
     </div>
     <div class="card-body">
-      <p><strong>Höhe:</strong> {{ bauteil.hoehe }} m</p>
-      <p><strong>Volumen:</strong> {{ bauteil.volumen }} m³</p>
-      <p><strong>Bruttogrundfläche:</strong> {{ bauteil.bgf }} m²</p>
-      <p><strong>Nutzfläche:</strong> {{ bauteil.nf }} m²</p>
-      <p><strong>U-Wert Wand Nord:</strong> {{ bauteil.u_wand_nord }} W/(m²·K)</p>
-      <p><strong>U-Wert Wand Süd:</strong> {{ bauteil.u_wand_sued }} W/(m²·K)</p>
-      <p><strong>U-Wert Wand Ost:</strong> {{ bauteil.u_wand_ost }} W/(m²·K)</p>
-      <p><strong>U-Wert Wand West:</strong> {{ bauteil.u_wand_west }} W/(m²·K)</p>
-      <p><strong>U-Wert Bodenplatte:</strong> {{ bauteil.u_bodenplatte }} W/(m²·K)</p>
-      <p><strong>U-Wert Dach:</strong> {{ bauteil.u_dach }} W/(m²·K)</p>
+      <div class="row">
+        <div class="col-md-4">
+          <p><strong>Volumen:</strong> {{ bauteil.volumen }} m³</p>
+        </div>
+        <div class="col-md-4">
+          <p><strong>Bruttogrundfläche:</strong> {{ bauteil.bgf }} m²</p>
+        </div>
+        <div class="col-md-4">
+          <p><strong>Nutzfläche:</strong> {{ bauteil.nf }} m²</p>
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="card mb-4">
-    <div class="card-header">
-      <h2>Berechnungen</h2>
+    <div class="card-header bg-info text-white">
+      <h2 class="mb-0">U-Werte</h2>
     </div>
     <div class="card-body">
-      <h3>Nutzenergie</h3>
-      <p><strong>Absolut:</strong> {{ nutzenergie.ne_absolut }} kWh</p>
-      <p><strong>Spezifisch:</strong> {{ nutzenergie.ne_spezifisch }} kWh/m²</p>
-      
-      <h3>Strombedarf</h3>
-      <p><strong>Absolut:</strong> {{ strombedarf.sb_absolut }} kWh</p>
-      <p><strong>Spezifisch:</strong> {{ strombedarf.sb_spezifisch }} kWh/m²</p>
-      
-      <h3>Wärmebedarf</h3>
-      <p><strong>Absolut:</strong> {{ waermebedarf.wb_absolut }} kWh</p>
-      
-      <h3>Endenergie</h3>
-      <p><strong>Absolut:</strong> {{ endenergie.ee_absolut }} kWh</p>
-      <p><strong>Spezifisch:</strong> {{ endenergie.ee_spezifisch }} kWh/m²</p>
+      <div class="row">
+        <div class="col-md-4">
+          <p><strong>Wand Nord:</strong> {{ bauteil.u_wand_nord|default:"–" }} W/(m²·K)</p>
+          <p><strong>Wand Süd:</strong> {{ bauteil.u_wand_sued|default:"–" }} W/(m²·K)</p>
+        </div>
+        <div class="col-md-4">
+          <p><strong>Wand Ost:</strong> {{ bauteil.u_wand_ost|default:"–" }} W/(m²·K)</p>
+          <p><strong>Wand West:</strong> {{ bauteil.u_wand_west|default:"–" }} W/(m²·K)</p>
+        </div>
+        <div class="col-md-4">
+          <p><strong>Bodenplatte:</strong> {{ bauteil.u_bodenplatte|default:"–" }} W/(m²·K)</p>
+          <p><strong>Dach:</strong> {{ bauteil.u_dach|default:"–" }} W/(m²·K)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header bg-warning">
+      <h2 class="mb-0">Energiebilanz</h2>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <h3>Nutzenergie</h3>
+          <p><strong>Absolut:</strong> {{ nutzenergie.ne_absolut|floatformat:2 }} kWh</p>
+          <p><strong>Spezifisch:</strong> {{ nutzenergie.ne_spezifisch|floatformat:2 }} kWh/m²</p>
+          
+          <h3 class="mt-4">Strombedarf</h3>
+          <p><strong>Absolut:</strong> {{ strombedarf.sb_absolut|floatformat:2 }} kWh</p>
+          <p><strong>Spezifisch:</strong> {{ strombedarf.sb_spezifisch|floatformat:2 }} kWh/m²</p>
+        </div>
+        <div class="col-md-6">
+          <h3>Wärmebedarf</h3>
+          <p><strong>Absolut:</strong> {{ waermebedarf.wb_absolut|floatformat:2 }} kWh</p>
+          
+          <h3 class="mt-4">Endenergie</h3>
+          <p><strong>Absolut:</strong> {{ endenergie.ee_absolut|floatformat:2 }} kWh</p>
+          <p><strong>Spezifisch:</strong> {{ endenergie.ee_spezifisch|floatformat:2 }} kWh/m²</p>
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="text-center mt-4">
     <a href="{% url 'startseite' %}" class="btn btn-secondary me-2">Zurück zur Startseite</a>
-    <a href="#" class="btn btn-primary">PDF herunterladen</a>
+    <a href="#" class="btn btn-primary" onclick="window.print()">Ergebnis drucken</a>
   </div>
+{% endblock %}
+
+{% block help_content %}
+<div class="help-item">
+  <h3>Ergebnisinterpretation</h3>
+  <p>Die Ergebnisse zeigen den Energiebedarf Ihres Gebäudes. Niedrigere Werte bedeuten eine bessere Energieeffizienz.</p>
+  <p>Typische Werte für Passivhäuser liegen bei etwa 15 kWh/(m²·a) für den Heizwärmebedarf.</p>
+</div>
 {% endblock %}

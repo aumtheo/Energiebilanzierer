@@ -1,9 +1,68 @@
 {% extends "base.html" %}
+
 {% block content %}
   <h1>Schritt 2 – Energiekennzahlen</h1>
   <form method="post" action="{% url 'wizard_energie' %}">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Weiter</button>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.jahres_heizwert.id_for_label }}">Jahres-Heizwärmebedarf (kWh)</label>
+      {{ form.jahres_heizwert }}
+      {% if form.jahres_heizwert.errors %}
+        <div class="text-danger">{{ form.jahres_heizwert.errors }}</div>
+      {% endif %}
+      <small class="form-text text-muted">{{ form.jahres_heizwert.help_text }}</small>
+    </div>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.tw_kwh_m2.id_for_label }}">Trinkwarmwasserbedarf (kWh/m²)</label>
+      {{ form.tw_kwh_m2 }}
+      {% if form.tw_kwh_m2.errors %}
+        <div class="text-danger">{{ form.tw_kwh_m2.errors }}</div>
+      {% endif %}
+      <small class="form-text text-muted">{{ form.tw_kwh_m2.help_text }}</small>
+    </div>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.luft_kwh_m2.id_for_label }}">Lüftungsenergiebedarf (kWh/m²)</label>
+      {{ form.luft_kwh_m2 }}
+      {% if form.luft_kwh_m2.errors %}
+        <div class="text-danger">{{ form.luft_kwh_m2.errors }}</div>
+      {% endif %}
+      <small class="form-text text-muted">{{ form.luft_kwh_m2.help_text }}</small>
+    </div>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.bel_kwh_m2.id_for_label }}">Beleuchtungsenergiebedarf (kWh/m²)</label>
+      {{ form.bel_kwh_m2 }}
+      {% if form.bel_kwh_m2.errors %}
+        <div class="text-danger">{{ form.bel_kwh_m2.errors }}</div>
+      {% endif %}
+      <small class="form-text text-muted">{{ form.bel_kwh_m2.help_text }}</small>
+    </div>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.nutz_kwh_m2.id_for_label }}">Nutzer-/Prozessenergie (kWh/m²)</label>
+      {{ form.nutz_kwh_m2 }}
+      {% if form.nutz_kwh_m2.errors %}
+        <div class="text-danger">{{ form.nutz_kwh_m2.errors }}</div>
+      {% endif %}
+      <small class="form-text text-muted">{{ form.nutz_kwh_m2.help_text }}</small>
+    </div>
+    
+    <div class="wizard-nav">
+      <a href="{% url 'wizard_allg' %}" class="btn btn-secondary">Zurück</a>
+      <button type="submit" class="btn btn-primary">Weiter</button>
+    </div>
   </form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Bei jedem Formular-Submit bzw. bei jedem Input-Change:
+  document.querySelector('form').addEventListener('input', function(e) {
+    const data = Object.fromEntries(new FormData(e.target.form));
+    fetchCalculation(data);
+  });
+</script>
 {% endblock %}

@@ -1,9 +1,67 @@
 {% extends "base.html" %}
+
 {% block content %}
   <h1>Schritt 7 – Wärmequellen</h1>
   <form method="post" action="{% url 'wizard_waermequelle' %}">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Weiter</button>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.name.id_for_label }}">Name der Wärmequelle</label>
+      {{ form.name }}
+      {% if form.name.errors %}
+        <div class="text-danger">{{ form.name.errors }}</div>
+      {% endif %}
+      <small class="form-text text-muted">{{ form.name.help_text }}</small>
+    </div>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.anzahl.id_for_label }}">Anzahl</label>
+      {{ form.anzahl }}
+      {% if form.anzahl.errors %}
+        <div class="text-danger">{{ form.anzahl.errors }}</div>
+      {% endif %}
+    </div>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.leistung_kw.id_for_label }}">Nennleistung (kW)</label>
+      {{ form.leistung_kw }}
+      {% if form.leistung_kw.errors %}
+        <div class="text-danger">{{ form.leistung_kw.errors }}</div>
+      {% endif %}
+      <small class="form-text text-muted">{{ form.leistung_kw.help_text }}</small>
+    </div>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.betrieb_hd.id_for_label }}">Betriebsstunden pro Tag</label>
+      {{ form.betrieb_hd }}
+      {% if form.betrieb_hd.errors %}
+        <div class="text-danger">{{ form.betrieb_hd.errors }}</div>
+      {% endif %}
+      <small class="form-text text-muted">{{ form.betrieb_hd.help_text }}</small>
+    </div>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.betrieb_da.id_for_label }}">Betriebstage pro Jahr</label>
+      {{ form.betrieb_da }}
+      {% if form.betrieb_da.errors %}
+        <div class="text-danger">{{ form.betrieb_da.errors }}</div>
+      {% endif %}
+      <small class="form-text text-muted">{{ form.betrieb_da.help_text }}</small>
+    </div>
+    
+    <div class="wizard-nav">
+      <a href="{% url 'wizard_beleuchtung' %}" class="btn btn-secondary">Zurück</a>
+      <button type="submit" class="btn btn-primary">Weiter</button>
+    </div>
   </form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Bei jedem Formular-Submit bzw. bei jedem Input-Change:
+  document.querySelector('form').addEventListener('input', function(e) {
+    const data = Object.fromEntries(new FormData(e.target.form));
+    fetchCalculation(data);
+  });
+</script>
 {% endblock %}

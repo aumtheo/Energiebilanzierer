@@ -1,9 +1,73 @@
 {% extends "base.html" %}
+
 {% block content %}
   <h1>Schritt 1 – Allgemeine Angaben</h1>
   <form method="post" action="{% url 'wizard_allg' %}">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Weiter</button>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.name.id_for_label }}">Name des Gebäudes</label>
+      {{ form.name }}
+      {% if form.name.errors %}
+        <div class="text-danger">{{ form.name.errors }}</div>
+      {% endif %}
+    </div>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.laenge_ns.id_for_label }}">Länge Nord/Süd (m)</label>
+      {{ form.laenge_ns }}
+      {% if form.laenge_ns.errors %}
+        <div class="text-danger">{{ form.laenge_ns.errors }}</div>
+      {% endif %}
+    </div>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.breite_ow.id_for_label }}">Breite Ost/West (m)</label>
+      {{ form.breite_ow }}
+      {% if form.breite_ow.errors %}
+        <div class="text-danger">{{ form.breite_ow.errors }}</div>
+      {% endif %}
+    </div>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.geschosshoehe.id_for_label }}">Geschosshöhe (m)</label>
+      {{ form.geschosshoehe }}
+      {% if form.geschosshoehe.errors %}
+        <div class="text-danger">{{ form.geschosshoehe.errors }}</div>
+      {% endif %}
+    </div>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.geschosse.id_for_label }}">Anzahl Geschosse</label>
+      {{ form.geschosse }}
+      {% if form.geschosse.errors %}
+        <div class="text-danger">{{ form.geschosse.errors }}</div>
+      {% endif %}
+    </div>
+    
+    <div class="form-group mb-3">
+      <label for="ort">Standort</label>
+      <select id="ort" name="ort" class="form-control">
+        <option value="">— bitte wählen —</option>
+        {% for ort in orte %}
+          <option value="{{ ort }}">{{ ort }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    
+    <div class="wizard-nav">
+      <a href="{% url 'startseite' %}" class="btn btn-secondary">Zurück</a>
+      <button type="submit" class="btn btn-primary">Weiter</button>
+    </div>
   </form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Bei jedem Formular-Submit bzw. bei jedem Input-Change:
+  document.querySelector('form').addEventListener('input', function(e) {
+    const data = Object.fromEntries(new FormData(e.target.form));
+    fetchCalculation(data);
+  });
+</script>
 {% endblock %}
