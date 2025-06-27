@@ -54,177 +54,117 @@ def gebaeude_allg(request):
     return render(request, 'mylist/gebaeude_allg.html', {'form': form})
 
 
-def gebaeude_kennzahlen(request):
-    gebaeude_id = request.session.get('gebaeude_id')
+def gebaeude_kennzahlen(request, gebaeude_id):
     geb = get_object_or_404(Gebaeude, pk=gebaeude_id)
     if request.method == 'POST':
         form = GebaeudeEnergieKennzahlenForm(request.POST, instance=geb)
         if form.is_valid():
             form.save()
-            return redirect('gebaeude_verluste')
+            return redirect('gebaeude_verluste', gebaeude_id=geb.pk)
     else:
         form = GebaeudeEnergieKennzahlenForm(instance=geb)
     return render(request, 'mylist/gebaeude_kennzahlen.html', {'form': form})
 
 
-def gebaeude_verluste(request):
-    gebaeude_id = request.session.get('gebaeude_id')
+def gebaeude_verluste(request, gebaeude_id):
     geb = get_object_or_404(Gebaeude, pk=gebaeude_id)
     if request.method == 'POST':
         form = GebaeudeVerlusteForm(request.POST, instance=geb)
         if form.is_valid():
             form.save()
-            return redirect('bauteil_eingabe')
+            return redirect('lueftung', gebaeude_id=geb.pk)
     else:
         form = GebaeudeVerlusteForm(instance=geb)
     return render(request, 'mylist/gebaeude_verluste.html', {'form': form})
 
 
-def bauteil_eingabe(request):
-    gebaeude_id = request.session.get('gebaeude_id')
+def lueftung(request, gebaeude_id):
     geb = get_object_or_404(Gebaeude, pk=gebaeude_id)
     if request.method == 'POST':
-        form = BauteilForm(request.POST)
+        form = LueftungForm(request.POST)
         if form.is_valid():
-            b = form.save(commit=False)
-            # Gebäude-Basisdaten berechnen
-            gd = berechne_gebaeudedaten(
-                laenge=b.laenge,
-                breite=b.breite,
-                geschosshoehe=b.geschosshoehe,
-                anz_geschosse=b.anz_geschosse,
-            )
-            b.hoehe = gd['hoehe']
-            b.volumen = gd['volumen']
-            b.bgf = gd['bgf']
-            b.nf = gd['nf']
-            b.save()
-            return redirect('lueftung_eingabe', bauteil_id=b.pk)
+            lueftung = form.save(commit=False)
+            # You might want to associate the lueftung with the gebaeude here
+            lueftung.save()
+            return redirect('beleuchtung', gebaeude_id=geb.pk)
     else:
-        form = BauteilForm()
-    return render(request, 'mylist/bauteil_eingabe.html', {'form': form})
+        form = LueftungForm()
+    return render(request, 'mylist/lueftung.html', {'form': form, 'gebaeude': geb})
 
 
-def lueftung_eingabe(request, bauteil_id):
-    b = get_object_or_404(Bauteil, pk=bauteil_id)
-    if request.method == 'POST':
-        form = LueftungForm(request.POST, instance=b)
-        if form.is_valid():
-            form.save()
-            return redirect('beleuchtung_eingabe', bauteil_id=b.pk)
-    else:
-        form = LueftungForm(instance=b)
-    return render(request, 'mylist/lueftung_eingabe.html', {'form': form})
-
-
-def beleuchtung_eingabe(request, bauteil_id):
-    b = get_object_or_404(Bauteil, pk=bauteil_id)
+def beleuchtung(request, gebaeude_id):
+    geb = get_object_or_404(Gebaeude, pk=gebaeude_id)
     if request.method == 'POST':
         form = BeleuchtungForm(request.POST)
         if form.is_valid():
-            lb = form.save(commit=False)
-            lb.save()
-            return redirect('waermequelle_eingabe', bauteil_id=b.pk)
+            beleuchtung = form.save(commit=False)
+            # You might want to associate the beleuchtung with the gebaeude here
+            beleuchtung.save()
+            return redirect('waermequelle', gebaeude_id=geb.pk)
     else:
         form = BeleuchtungForm()
-    return render(request, 'mylist/beleuchtung_eingabe.html', {'form': form})
+    return render(request, 'mylist/beleuchtung.html', {'form': form, 'gebaeude': geb})
 
 
-def waermequelle_eingabe(request, bauteil_id):
-    b = get_object_or_404(Bauteil, pk=bauteil_id)
+def waermequelle(request, gebaeude_id):
+    geb = get_object_or_404(Gebaeude, pk=gebaeude_id)
     if request.method == 'POST':
         form = WaermequelleForm(request.POST)
         if form.is_valid():
-            wq = form.save(commit=False)
-            wq.save()
-            return redirect('gwp_eingabe', bauteil_id=b.pk)
+            waermequelle = form.save(commit=False)
+            # You might want to associate the waermequelle with the gebaeude here
+            waermequelle.save()
+            return redirect('gwp', gebaeude_id=geb.pk)
     else:
         form = WaermequelleForm()
-    return render(request, 'mylist/waermequelle_eingabe.html', {'form': form})
+    return render(request, 'mylist/waermequelle.html', {'form': form, 'gebaeude': geb})
 
 
-def gwp_eingabe(request, bauteil_id):
-    b = get_object_or_404(Bauteil, pk=bauteil_id)
+def gwp_eingabe(request, gebaeude_id):
+    geb = get_object_or_404(Gebaeude, pk=gebaeude_id)
     if request.method == 'POST':
         form = GwpEingabeForm(request.POST)
         if form.is_valid():
-            ge = form.save(commit=False)
-            ge.save()
-            return redirect('sonneneintrag_eingabe', bauteil_id=b.pk)
+            gwp = form.save(commit=False)
+            gwp.gebaeude = geb
+            gwp.save()
+            return redirect('sonneneintrag', gebaeude_id=geb.pk)
     else:
-        form = GwpEingabeForm()
-    return render(request, 'mylist/gwp_eingabe.html', {'form': form})
+        form = GwpEingabeForm(initial={'gebaeude': geb})
+    return render(request, 'mylist/gwp_eingabe.html', {'form': form, 'gebaeude': geb})
 
 
-def sonneneintrag_eingabe(request, bauteil_id):
-    b = get_object_or_404(Bauteil, pk=bauteil_id)
+def sonneneintrag(request, gebaeude_id):
+    geb = get_object_or_404(Gebaeude, pk=gebaeude_id)
     if request.method == 'POST':
         form = SonneneintragsParameterForm(request.POST)
         if form.is_valid():
-            sp = form.save(commit=False)
-            sp.save()
-            return redirect('ergebnis_seite', bauteil_id=b.pk)
+            sonneneintrag = form.save(commit=False)
+            sonneneintrag.gebaeude = geb
+            sonneneintrag.save()
+            return redirect('ergebnis')
     else:
-        form = SonneneintragsParameterForm()
-    return render(request, 'mylist/sonneneintrag_eingabe.html', {'form': form})
-
-
-def ergebnis_seite(request, bauteil_id):
-    b = get_object_or_404(Bauteil, pk=bauteil_id)
-
-    # Beispiel: Endenergie-Berechnungen
-    ne = berechne_nutzenergiebedarf(
-        nf_m2=b.nf,
-        jahres_heizbedarf_kwh=b.gebaeude.jahres_heizwert,
-        trinkwarmwasser_kwh_pro_m2=b.gebaeude.tw_kwh_m2,
-        luftfoerderung_kwh_pro_m2=b.luftwechselrate,  # oder b.luft_kwh_m2
-        beleuchtung_kwh_pro_m2=b.gebaeude.bel_kwh_m2,
-        nutzer_pro_m2=b.gebaeude.nutz_kwh_m2,
-    )
-    sb = berechne_strombedarf(
-        nf_m2=b.nf,
-        trinkwarmwasser_kwh_pro_m2=b.gebaeude.tw_kwh_m2,
-        luftfoerderung_kwh_pro_m2=b.luftwechselrate,
-        beleuchtung_kwh_pro_m2=b.gebaeude.bel_kwh_m2,
-        nutzer_pro_m2=b.gebaeude.nutz_kwh_m2,
-    )
-    wb = berechne_waermebedarf(
-        jahres_heizbedarf_kwh=b.gebaeude.jahres_heizwert,
-        verteilungsverlust_kwh=b.gebaeude.verteilungsverlust_kwh,
-        speicherverlust_kwh=b.gebaeude.speicherverlust_kwh,
-        warmwasserbedarf_kwh=b.gebaeude.warmwasserbedarf_kwh,
-    )
-    ee = berechne_endenergiebedarf(b.nf, sb, wb)
-
-    context = {
-        'bauteil': b,
-        'nutzenergie': ne,
-        'strom': sb,
-        'waerme': wb,
-        'endenergie': ee,
-    }
-    return render(request, 'mylist/ergebnis.html', context)
+        form = SonneneintragsParameterForm(initial={'gebaeude': geb})
+    return render(request, 'mylist/sonneneintrag.html', {'form': form, 'gebaeude': geb})
 
 
 # ————— PDF-Export —————
 
-def ergebnis_pdf(request, bauteil_id):
-    b = get_object_or_404(Bauteil, pk=bauteil_id)
+def einfach_ergebnis_pdf(request):
     buffer = BytesIO()
     p = canvas.Canvas(buffer, pagesize=A4)
     w, h = A4
 
     p.setFont("Helvetica-Bold", 16)
-    p.drawCentredString(w/2, h-80, f"Ergebnis Bauteil #{b.pk}")
+    p.drawCentredString(w/2, h-80, "Ergebnis der Gebäudeberechnung")
 
     p.setFont("Helvetica", 12)
     y = h - 120
     for label, val in [
-        ("Gebäudehöhe (m)", b.hoehe),
-        ("Volumen (m³)", b.volumen),
-        ("NF (m²)", b.nf),
-        ("Neuz. absolut", b.ne_absolut),
-        ("Endenergie absolut", b.ee_absolut),
+        ("Länge (m)", request.GET.get('laenge', '-')),
+        ("Breite (m)", request.GET.get('breite', '-')),
+        ("Geschosshöhe (m)", request.GET.get('geschosshoehe', '-')),
+        ("Anzahl Geschosse", request.GET.get('geschosse', '-')),
     ]:
         p.drawString(80, y, f"{label}: {val}")
         y -= 20
@@ -233,41 +173,52 @@ def ergebnis_pdf(request, bauteil_id):
     p.save()
     buffer.seek(0)
     resp = HttpResponse(buffer, content_type='application/pdf')
-    resp['Content-Disposition'] = f'attachment; filename="ergebnis_bauteil_{b.pk}.pdf"'
+    resp['Content-Disposition'] = 'attachment; filename="ergebnis.pdf"'
     return resp
 
 
 # ————— JSON-API —————
 
 def api_berechnung(request):
-    laenge = float(request.GET.get("laenge", 0))
-    breite = float(request.GET.get("breite", 0))
-    geschosshoehe = float(request.GET.get("geschosshoehe", 0))
-    anz_geschosse = int(request.GET.get("anz_geschosse", 0))
+    try:
+        laenge = float(request.GET.get("laenge", 0))
+        breite = float(request.GET.get("breite", 0))
+        geschosshoehe = float(request.GET.get("geschosshoehe", 0))
+        anz_geschosse = int(request.GET.get("anz_geschosse", 0))
+    except (ValueError, TypeError):
+        laenge = breite = geschosshoehe = 0
+        anz_geschosse = 0
 
     geb = berechne_gebaeudedaten(laenge, breite, geschosshoehe, anz_geschosse)
-    ne = berechne_nutzenergiebedarf(
-        geb["nf"],
-        float(request.GET.get("jahres_heizbedarf", 0)),
-        float(request.GET.get("tw_pro_m2", 0)),
-        float(request.GET.get("lwt_pro_m2", 0)),
-        float(request.GET.get("bel_pro_m2", 0)),
-        float(request.GET.get("nutzer_pro_m2", 0)),
-    )
-    sb = berechne_strombedarf(
-        geb["nf"],
-        float(request.GET.get("tw_pro_m2", 0)),
-        float(request.GET.get("lwt_pro_m2", 0)),
-        float(request.GET.get("bel_pro_m2", 0)),
-        float(request.GET.get("nutzer_pro_m2", 0)),
-    )
-    wb = berechne_waermebedarf(
-        float(request.GET.get("jahres_heizbedarf", 0)),
-        float(request.GET.get("verlust_verteilung", 0)),
-        float(request.GET.get("verlust_speicher", 0)),
-        float(request.GET.get("ww_warmwasser", 0)),
-    )
-    ee = berechne_endenergiebedarf(geb["nf"], sb, wb)
+    
+    try:
+        ne = berechne_nutzenergiebedarf(
+            geb["nf"],
+            float(request.GET.get("jahres_heizbedarf", 0)),
+            float(request.GET.get("tw_pro_m2", 0)),
+            float(request.GET.get("lwt_pro_m2", 0)),
+            float(request.GET.get("bel_pro_m2", 0)),
+            float(request.GET.get("nutzer_pro_m2", 0)),
+        )
+        sb = berechne_strombedarf(
+            geb["nf"],
+            float(request.GET.get("tw_pro_m2", 0)),
+            float(request.GET.get("lwt_pro_m2", 0)),
+            float(request.GET.get("bel_pro_m2", 0)),
+            float(request.GET.get("nutzer_pro_m2", 0)),
+        )
+        wb = berechne_waermebedarf(
+            float(request.GET.get("jahres_heizbedarf", 0)),
+            float(request.GET.get("verlust_verteilung", 0)),
+            float(request.GET.get("verlust_speicher", 0)),
+            float(request.GET.get("ww_warmwasser", 0)),
+        )
+        ee = berechne_endenergiebedarf(geb["nf"], sb, wb)
+    except (ValueError, TypeError):
+        ne = {"ne_absolut": 0, "ne_spezifisch": 0}
+        sb = {"sb_absolut": 0, "sb_spezifisch": 0}
+        wb = {"wb_absolut": 0}
+        ee = {"ee_absolut": 0, "ee_spezifisch": 0}
 
     return JsonResponse({
         "gebaeudedaten": geb,
@@ -423,16 +374,40 @@ def beleuchtung_angaben(request):
             # Annahme: Beleuchtung hat ein ForeignKey-Feld 'gebaeude'
             # beleuchtung.gebaeude = gebaeude
             beleuchtung.save()
-            return redirect('wizard_gwp')
+            return redirect('wizard_waermequelle')
     else:
         form = BeleuchtungForm()
     
     return render(request, 'beleuchtung_angaben.html', {'form': form, 'gebaeude': gebaeude})
 
 
+def waermequelle_angaben(request):
+    """
+    Siebter Schritt des Wizards: Wärmequelle.
+    """
+    gebaeude_pk = request.session.get('geb_pk')
+    if not gebaeude_pk:
+        return redirect('wizard_allg')
+    
+    gebaeude = get_object_or_404(Gebaeude, pk=gebaeude_pk)
+    
+    if request.method == 'POST':
+        form = WaermequelleForm(request.POST)
+        if form.is_valid():
+            waermequelle = form.save(commit=False)
+            # Annahme: Waermequelle hat ein ForeignKey-Feld 'gebaeude'
+            # waermequelle.gebaeude = gebaeude
+            waermequelle.save()
+            return redirect('wizard_gwp')
+    else:
+        form = WaermequelleForm()
+    
+    return render(request, 'waermequelle_angaben.html', {'form': form, 'gebaeude': gebaeude})
+
+
 def gwp_angaben(request):
     """
-    Siebter Schritt des Wizards: GWP (Global Warming Potential).
+    Achter Schritt des Wizards: GWP (Global Warming Potential).
     """
     gebaeude_pk = request.session.get('geb_pk')
     if not gebaeude_pk:
@@ -446,11 +421,34 @@ def gwp_angaben(request):
             gwp = form.save(commit=False)
             gwp.gebaeude = gebaeude
             gwp.save()
-            return redirect('wizard_ergebnis')
+            return redirect('wizard_sonneneintrag')
     else:
         form = GwpEingabeForm(initial={'gebaeude': gebaeude})
     
     return render(request, 'gwp_angaben.html', {'form': form, 'gebaeude': gebaeude})
+
+
+def sonneneintrag_angaben(request):
+    """
+    Neunter Schritt des Wizards: Sonneneintrag.
+    """
+    gebaeude_pk = request.session.get('geb_pk')
+    if not gebaeude_pk:
+        return redirect('wizard_allg')
+    
+    gebaeude = get_object_or_404(Gebaeude, pk=gebaeude_pk)
+    
+    if request.method == 'POST':
+        form = SonneneintragsParameterForm(request.POST)
+        if form.is_valid():
+            sonneneintrag = form.save(commit=False)
+            sonneneintrag.gebaeude = gebaeude
+            sonneneintrag.save()
+            return redirect('wizard_ergebnis')
+    else:
+        form = SonneneintragsParameterForm(initial={'gebaeude': gebaeude})
+    
+    return render(request, 'sonneneintrag_angaben.html', {'form': form, 'gebaeude': gebaeude})
 
 
 def wizard_ergebnis(request):
@@ -514,7 +512,7 @@ def wizard_ergebnis(request):
         # Weitere Daten wie GWP, Beleuchtung, etc. könnten hier hinzugefügt werden
     }
     
-    return render(request, 'ergebnis.html', context)
+    return render(request, 'wizard_ergebnis.html', context)
 
 
 def einfach_ergebnis(request):
@@ -548,51 +546,6 @@ def einfach_ergebnis(request):
     }
     
     return render(request, 'einfach_ergebnis.html', context)
-
-
-def einfach_ergebnis_pdf(request):
-    """
-    Generiert ein PDF mit den Ergebnissen der einfachen Berechnung.
-    """
-    # Daten aus GET-Parametern oder Session holen
-    laenge = float(request.GET.get('laenge', 0))
-    breite = float(request.GET.get('breite', 0))
-    geschosshoehe = float(request.GET.get('geschosshoehe', 0))
-    geschosse = int(request.GET.get('geschosse', 0))
-    
-    # Gebäudedaten berechnen
-    daten = berechne_gebaeudedaten(laenge, breite, geschosshoehe, geschosse)
-    
-    # PDF erstellen
-    buffer = BytesIO()
-    p = canvas.Canvas(buffer, pagesize=A4)
-    w, h = A4
-    
-    p.setFont("Helvetica-Bold", 16)
-    p.drawCentredString(w/2, h-80, "Ergebnis der Gebäudeberechnung")
-    
-    p.setFont("Helvetica", 12)
-    y = h - 120
-    for label, val in [
-        ("Länge (m)", laenge),
-        ("Breite (m)", breite),
-        ("Geschosshöhe (m)", geschosshoehe),
-        ("Anzahl Geschosse", geschosse),
-        ("Gebäudehöhe (m)", daten['hoehe']),
-        ("Volumen (m³)", daten['volumen']),
-        ("BGF (m²)", daten['bgf']),
-        ("NF (m²)", daten['nf']),
-    ]:
-        p.drawString(80, y, f"{label}: {val}")
-        y -= 20
-    
-    p.showPage()
-    p.save()
-    buffer.seek(0)
-    
-    resp = HttpResponse(buffer, content_type='application/pdf')
-    resp['Content-Disposition'] = 'attachment; filename="gebaeude_ergebnis.pdf"'
-    return resp
 
 
 # ————— Weitere Views für die Navigation —————
@@ -662,11 +615,6 @@ def lftung(request):
     return render(request, 'lftung.html')
 
 
-def beleuchtung(request):
-    """View für die Beleuchtung-Seite."""
-    return render(request, 'beleuchtung.html')
-
-
 def beleuchtung_2(request):
     """View für die Beleuchtung-Seite (Teil 2)."""
     return render(request, 'beleuchtung_2.html')
@@ -705,3 +653,35 @@ def baukrper_kp_2(request):
 def bauteil_kp(request):
     """View für die komplexe Bauteil-Seite."""
     return render(request, 'bauteil_kp.html')
+
+
+# Additional views for the wizard flow
+def bauteile_bezugsgroessen(request):
+    return render(request, 'bauteile_bezugsgroessen.html')
+
+def bauteile_aufbau(request):
+    return render(request, 'bauteile_aufbau.html')
+
+def bauteile_luftfoerderung(request):
+    return render(request, 'bauteile_luftfoerderung.html')
+
+def bauteile_photovoltaik(request):
+    return render(request, 'bauteile_photovoltaik.html')
+
+def waerme_heizwaerme(request):
+    return render(request, 'waerme_heizwaerme.html')
+
+def waerme_waermequellen(request):
+    return render(request, 'waerme_waermequellen.html')
+
+def waerme_waermeschutz(request):
+    return render(request, 'waerme_waermeschutz.html')
+
+def waerme_lichtwasser(request):
+    return render(request, 'waerme_lichtwasser.html')
+
+def gwp_herstellung(request):
+    return render(request, 'gwp_herstellung.html')
+
+def gwp_waermequellen(request):
+    return render(request, 'gwp_waermequellen.html')
