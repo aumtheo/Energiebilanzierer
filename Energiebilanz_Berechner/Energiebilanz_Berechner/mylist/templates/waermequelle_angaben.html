@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
-  <h1>Schritt 1 – Allgemeine Angaben</h1>
-  <form method="post" action="{% url 'wizard_allg' %}">
+  <h1>Schritt 7 – Wärmequellen</h1>
+  <form method="post" action="{% url 'wizard_waermequelle' %}">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit" class="btn btn-primary">Weiter</button>

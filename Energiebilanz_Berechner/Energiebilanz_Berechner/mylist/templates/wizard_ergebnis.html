@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Ergebnis</h1>
+  
+  <div class="card mb-4">
+    <div class="card-header">
+      <h2>Gebäude</h2>
+    </div>
+    <div class="card-body">
+      <p><strong>Name:</strong> {{ gebaeude.name }}</p>
+      <p><strong>Länge (Nord/Süd):</strong> {{ gebaeude.laenge_ns }} m</p>
+      <p><strong>Breite (Ost/West):</strong> {{ gebaeude.breite_ow }} m</p>
+      <p><strong>Geschosshöhe:</strong> {{ gebaeude.geschosshoehe }} m</p>
+      <p><strong>Geschosse:</strong> {{ gebaeude.geschosse }}</p>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header">
+      <h2>Bauteil</h2>
+    </div>
+    <div class="card-body">
+      <p><strong>Höhe:</strong> {{ bauteil.hoehe }} m</p>
+      <p><strong>Volumen:</strong> {{ bauteil.volumen }} m³</p>
+      <p><strong>Bruttogrundfläche:</strong> {{ bauteil.bgf }} m²</p>
+      <p><strong>Nutzfläche:</strong> {{ bauteil.nf }} m²</p>
+      <p><strong>U-Wert Wand Nord:</strong> {{ bauteil.u_wand_nord }} W/(m²·K)</p>
+      <p><strong>U-Wert Wand Süd:</strong> {{ bauteil.u_wand_sued }} W/(m²·K)</p>
+      <p><strong>U-Wert Wand Ost:</strong> {{ bauteil.u_wand_ost }} W/(m²·K)</p>
+      <p><strong>U-Wert Wand West:</strong> {{ bauteil.u_wand_west }} W/(m²·K)</p>
+      <p><strong>U-Wert Bodenplatte:</strong> {{ bauteil.u_bodenplatte }} W/(m²·K)</p>
+      <p><strong>U-Wert Dach:</strong> {{ bauteil.u_dach }} W/(m²·K)</p>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header">
+      <h2>Berechnungen</h2>
+    </div>
+    <div class="card-body">
+      <h3>Nutzenergie</h3>
+      <p><strong>Absolut:</strong> {{ nutzenergie.ne_absolut }} kWh</p>
+      <p><strong>Spezifisch:</strong> {{ nutzenergie.ne_spezifisch }} kWh/m²</p>
+      
+      <h3>Strombedarf</h3>
+      <p><strong>Absolut:</strong> {{ strombedarf.sb_absolut }} kWh</p>
+      <p><strong>Spezifisch:</strong> {{ strombedarf.sb_spezifisch }} kWh/m²</p>
+      
+      <h3>Wärmebedarf</h3>
+      <p><strong>Absolut:</strong> {{ waermebedarf.wb_absolut }} kWh</p>
+      
+      <h3>Endenergie</h3>
+      <p><strong>Absolut:</strong> {{ endenergie.ee_absolut }} kWh</p>
+      <p><strong>Spezifisch:</strong> {{ endenergie.ee_spezifisch }} kWh/m²</p>
+    </div>
+  </div>
+
+  <div class="text-center mt-4">
+    <a href="{% url 'startseite' %}" class="btn btn-secondary me-2">Zurück zur Startseite</a>
+    <a href="#" class="btn btn-primary">PDF herunterladen</a>
+  </div>
+{% endblock %}
