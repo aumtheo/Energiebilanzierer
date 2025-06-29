@@ -61,21 +61,9 @@ urlpatterns = [
     path('bauteil/komplex/', views.bauteil_kp, name='bauteil_kp'),
 
     path("api/berechnung/", views.api_berechnung, name="api_berechnung"),
+    path('allg/', views.allg_angaben, name='allg_angaben'),
 
-    # Wizard flow
-    path('wizard/allg/', views.allg_angaben, name='wizard_allg'),
-    path('wizard/energie/', views.energie_angaben, name='wizard_energie'),
-    path('wizard/verluste/', views.verluste_angaben, name='wizard_verluste'),
-    path('wizard/bauteile/', views.bauteile_angaben, name='wizard_bauteile'),
-    path('wizard/lueftung/', views.lueftung_angaben, name='wizard_lueftung'),
-    path('wizard/beleuchtung/', views.beleuchtung_angaben, name='wizard_beleuchtung'),
-    path('wizard/waermequelle/', views.waermequelle_angaben, name='wizard_waermequelle'),
-    path('wizard/gwp/', views.gwp_angaben, name='wizard_gwp'),
-    path('wizard/sonneneintrag/', views.sonneneintrag_angaben, name='wizard_sonneneintrag'),
-    path('wizard/ergebnis/', views.wizard_ergebnis, name='wizard_ergebnis'),
-
-    # Gebäude-Detailseiten
-    path('gebaeude/allg/', views.gebaeude_allg, name='gebaeude_allg'),
+    path('allg/', views.gebaeude_allg, name='gebaeude_allg'),
     path('kennzahlen/<int:gebaeude_id>/', views.gebaeude_kennzahlen, name='gebaeude_kennzahlen'),
     path('verluste/<int:gebaeude_id>/', views.gebaeude_verluste, name='gebaeude_verluste'),
     path('lueftung/<int:gebaeude_id>/', views.lueftung, name='lueftung'),
