@@ -15,11 +15,15 @@ function findManagePy(dir) {
         if (stat.isDirectory()) {
           searchDirectory(fullPath);
         } else if (item === 'manage.py') {
-          results.push(fullPath);
+          results.push({
+            path: fullPath,
+            size: stat.size,
+            mtime: stat.mtime
+          });
         }
       }
     } catch (error) {
-      // Skip directories we can't read
+      console.log(`Error accessing directory ${currentDir}: ${error.message}`);
     }
   }
   
@@ -28,22 +32,17 @@ function findManagePy(dir) {
 }
 
 // Find all manage.py files in the Energiebilanz_Berechner directory
-const managePyFiles = findManagePy('/home/project/Energiebilanz_Berechner');
+const startDir = process.argv[2] || '/home/project/Energiebilanz_Berechner';
+const managePyFiles = findManagePy(startDir);
 
 if (managePyFiles.length > 0) {
   console.log('Found manage.py files:');
   managePyFiles.forEach(file => {
-    try {
-      const stat = fs.statSync(file);
-      const permissions = stat.mode.toString(8).slice(-3);
-      const size = stat.size;
-      const mtime = stat.mtime.toISOString().slice(0, 19).replace('T', ' ');
-      
-      console.log(`-rw-r--r-- 1 user user ${size.toString().padStart(8)} ${mtime} ${file}`);
-    } catch (error) {
-      console.log(`Error reading stats for ${file}: ${error.message}`);
-    }
+    const mtime = file.mtime.toISOString().slice(0, 19).replace('T', ' ');
+    console.log(`${file.size.toString().padStart(8)} bytes  ${mtime}  ${file.path}`);
   });
+  
+  console.log(`\nTotal: ${managePyFiles.length} manage.py files found`);
 } else {
-  console.log('No manage.py files found in /home/project/Energiebilanz_Berechner');
+  console.log(`No manage.py files found in ${startDir}`);
 }
