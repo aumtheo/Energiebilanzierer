@@ -32,7 +32,7 @@ function findManagePy(dir) {
 }
 
 // Find all manage.py files in the Energiebilanz_Berechner directory
-const startDir = process.argv[2] || '/home/project/Energiebilanz_Berechner';
+const startDir = process.argv[2] || '/home/project';
 const managePyFiles = findManagePy(startDir);
 
 if (managePyFiles.length > 0) {
