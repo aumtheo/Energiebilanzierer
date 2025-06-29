@@ -1,0 +1,10 @@
+Bauteil,Fx
+"Auﬂenwand, Fenster, Decke ‹ber Auﬂenluft",1
+Dach (als Systemgrenze),1
+Dachgeschossdecke (Dachraum nicht ausgebaut),0.8
+W‰nde und Decken zu Abseiten (Drempel),0.8
+W‰nde und Decken zu unbeheizten R‰umen,0.5
+W‰nde und Decken zu niedrig beheizten R‰umen (12 ∞C und 19∞C),0.35
+Einfachverglasung,0.8
+Zweischeibenverglasung,0.7
+W‰rmeschutzverglasung,0.5

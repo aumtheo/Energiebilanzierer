@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Schritt 4 – Bauteil-Daten</h1>
+  <form method="post" action="{% url 'wizard_bauteile' %}">
+    {% csrf_token %}
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.laenge.id_for_label }}">Länge (m)</label>
+      {{ form.laenge }}
+      {% if form.laenge.errors %}
+        <div class="text-danger">{{ form.laenge.errors }}</div>
+      {% endif %}
+    </div>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.breite.id_for_label }}">Breite (m)</label>
+      {{ form.breite }}
+      {% if form.breite.errors %}
+        <div class="text-danger">{{ form.breite.errors }}</div>
+      {% endif %}
+    </div>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.geschosshoehe.id_for_label }}">Geschosshöhe (m)</label>
+      {{ form.geschosshoehe }}
+      {% if form.geschosshoehe.errors %}
+        <div class="text-danger">{{ form.geschosshoehe.errors }}</div>
+      {% endif %}
+    </div>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.anz_geschosse.id_for_label }}">Anzahl Geschosse</label>
+      {{ form.anz_geschosse }}
+      {% if form.anz_geschosse.errors %}
+        <div class="text-danger">{{ form.anz_geschosse.errors }}</div>
+      {% endif %}
+    </div>
+    
+    <h3 class="mt-4 mb-3">U-Werte</h3>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.u_wand_nord.id_for_label }}">U-Wert Wand Nord (W/m²K)</label>
+      {{ form.u_wand_nord }}
+      {% if form.u_wand_nord.errors %}
+        <div class="text-danger">{{ form.u_wand_nord.errors }}</div>
+      {% endif %}
+    </div>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.u_wand_sued.id_for_label }}">U-Wert Wand Süd (W/m²K)</label>
+      {{ form.u_wand_sued }}
+      {% if form.u_wand_sued.errors %}
+        <div class="text-danger">{{ form.u_wand_sued.errors }}</div>
+      {% endif %}
+    </div>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.u_wand_ost.id_for_label }}">U-Wert Wand Ost (W/m²K)</label>
+      {{ form.u_wand_ost }}
+      {% if form.u_wand_ost.errors %}
+        <div class="text-danger">{{ form.u_wand_ost.errors }}</div>
+      {% endif %}
+    </div>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.u_wand_west.id_for_label }}">U-Wert Wand West (W/m²K)</label>
+      {{ form.u_wand_west }}
+      {% if form.u_wand_west.errors %}
+        <div class="text-danger">{{ form.u_wand_west.errors }}</div>
+      {% endif %}
+    </div>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.u_bodenplatte.id_for_label }}">U-Wert Bodenplatte (W/m²K)</label>
+      {{ form.u_bodenplatte }}
+      {% if form.u_bodenplatte.errors %}
+        <div class="text-danger">{{ form.u_bodenplatte.errors }}</div>
+      {% endif %}
+    </div>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.u_dach.id_for_label }}">U-Wert Dach (W/m²K)</label>
+      {{ form.u_dach }}
+      {% if form.u_dach.errors %}
+        <div class="text-danger">{{ form.u_dach.errors }}</div>
+      {% endif %}
+    </div>
+    
+    <div class="wizard-nav">
+      <a href="{% url 'wizard_verluste' %}" class="btn btn-secondary">Zurück</a>
+      <button type="submit" class="btn btn-primary">Weiter</button>
+    </div>
+  </form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Bei jedem Formular-Submit bzw. bei jedem Input-Change:
+  document.querySelector('form').addEventListener('input', function(e) {
+    const data = Object.fromEntries(new FormData(e.target.form));
+    fetchCalculation(data);
+  });
+</script>
+{% endblock %}

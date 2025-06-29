@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Schritt 8 – GWP-Eingabe</h1>
+  <form method="post" action="{% url 'wizard_gwp' %}">
+    {% csrf_token %}
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.gebaeude.id_for_label }}">Gebäude</label>
+      {{ form.gebaeude }}
+      {% if form.gebaeude.errors %}
+        <div class="text-danger">{{ form.gebaeude.errors }}</div>
+      {% endif %}
+    </div>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.variante.id_for_label }}">Variante</label>
+      {{ form.variante }}
+      {% if form.variante.errors %}
+        <div class="text-danger">{{ form.variante.errors }}</div>
+      {% endif %}
+    </div>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.menge.id_for_label }}">Menge (m² oder m³)</label>
+      {{ form.menge }}
+      {% if form.menge.errors %}
+        <div class="text-danger">{{ form.menge.errors }}</div>
+      {% endif %}
+      <small class="form-text text-muted">{{ form.menge.help_text }}</small>
+    </div>
+    
+    <div class="form-group mb-3">
+      <label for="{{ form.spez_co2.id_for_label }}">Spezifische CO₂-Emissionen</label>
+      {{ form.spez_co2 }}
+      {% if form.spez_co2.errors %}
+        <div class="text-danger">{{ form.spez_co2.errors }}</div>
+      {% endif %}
+      <small class="form-text text-muted">{{ form.spez_co2.help_text }}</small>
+    </div>
+    
+    <div class="wizard-nav">
+      <a href="{% url 'wizard_waermequelle' %}" class="btn btn-secondary">Zurück</a>
+      <button type="submit" class="btn btn-primary">Weiter</button>
+    </div>
+  </form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Bei jedem Formular-Submit bzw. bei jedem Input-Change:
+  document.querySelector('form').addEventListener('input', function(e) {
+    const data = Object.fromEntries(new FormData(e.target.form));
+    fetchCalculation(data);
+  });
+</script>
+{% endblock %}
